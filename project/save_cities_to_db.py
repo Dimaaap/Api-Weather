@@ -1,15 +1,5 @@
-from os import getenv
-
-from pymongo import MongoClient
-
 from fetch_cities import CitiesFetcher
-
-
-class ConnectToMongoMixin:
-
-    def __init__(self):
-        self.client = MongoClient(getenv('MONGO_HOST'), int(getenv('MONGO_PORT')))
-        self.database = self.client['cities_weather']
+from mixins import ConnectToMongoMixin
 
 
 class CitiesSaverToDb(CitiesFetcher, ConnectToMongoMixin):
