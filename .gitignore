@@ -1,3 +1,5 @@
 .idea/
 env/
 main.py
+get_weather_for_cities.py
+.*pyc

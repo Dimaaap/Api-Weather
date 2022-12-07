@@ -1,3 +1,5 @@
+from os import getenv
+
 from pymongo import MongoClient
 
 from fetch_cities import CitiesFetcher
@@ -6,7 +8,7 @@ from fetch_cities import CitiesFetcher
 class ConnectToMongoMixin:
 
     def __init__(self):
-        self.client = MongoClient('localhost', 27017)
+        self.client = MongoClient(getenv('MONGO_HOST'), int(getenv('MONGO_PORT')))
         self.database = self.client['cities_weather']
 
 
@@ -40,7 +42,7 @@ class CitiesSaverToDb(CitiesFetcher, ConnectToMongoMixin):
                 population = self.convert_population_by_int(population)
                 country_id = self.countries.find_one({'country_title': country}, {'id': 1,
                                                                                   '_id': 0})
-                if self.cities.find_one({'city_title': city_title}):
+                if not self.cities.find_one({'city_title': city_title}):
                     self.cities.insert_one({'id': city_id, 'city_title': city_title,
                                             'country_id': country_id['id'],
                                             'population': population})

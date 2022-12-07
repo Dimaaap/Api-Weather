@@ -35,7 +35,7 @@ class CitiesFetcher:
     def __create_file(self, filename: str):
         try:
             request = requests.get(self.URL_TO_CITIES_TABLE)
-        except ConnectionError:
+        except Exception:
             raise ConnectionError("Помилка запиту. Ймовірно,у вас проблеми із інтернетом,"
                                   "перевірте з'єднання та спробуйте ще раз ")
         request_text = request.text
