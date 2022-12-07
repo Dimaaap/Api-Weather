@@ -1,7 +1,13 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
+# import schedule
 
-from fetch_weather import FetchWeather
+# from fetch_weather import FetchWeather
 
 
-class Scheduler(FetchWeather):
-    pass
+# class Scheduler(FetchWeather):
+
+#    def scheduler_doing(self):
+#       schedule.every().hour.do(self.fetch_weather_to_cities)
+
+
+# a = Scheduler()
+# a.scheduler_doing()
