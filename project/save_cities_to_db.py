@@ -1,8 +1,9 @@
 from fetch_cities import CitiesFetcher
 from mixins import ConnectToMongoMixin
+from db_wrapper import DbWrapper
 
 
-class CitiesSaverToDb(CitiesFetcher, ConnectToMongoMixin):
+class CitiesSaverToDb(CitiesFetcher, ConnectToMongoMixin, DbWrapper):
 
     def __init__(self):
         ConnectToMongoMixin.__init__(self)
@@ -16,8 +17,9 @@ class CitiesSaverToDb(CitiesFetcher, ConnectToMongoMixin):
             countries_set.add(i[1])
         try:
             for index, country in enumerate(countries_set):
-                if not self.countries.find_one({'country_title': country}):
-                    self.countries.insert_one({'id': index + 1, 'country_title': country})
+                if not self.find_one_from_collection(self.cities, {'country_title': country}, {}):
+                    self.insert_one_to_collection({'id': index + 1, 'country_title': country},
+                                                  self.countries)
                 else:
                     continue
         except Exception:
@@ -30,12 +32,13 @@ class CitiesSaverToDb(CitiesFetcher, ConnectToMongoMixin):
         try:
             for city_id, city_title, country, population in cities_list:
                 population = self.convert_population_by_int(population)
-                country_id = self.countries.find_one({'country_title': country}, {'id': 1,
-                                                                                  '_id': 0})
-                if not self.cities.find_one({'city_title': city_title}):
-                    self.cities.insert_one({'id': city_id, 'city_title': city_title,
-                                            'country_id': country_id['id'],
-                                            'population': population})
+                country_id = self.find_one_from_collection(self.countries,
+                                                           {'country_title': country},
+                                                           {'id': 1, '_id': 0})
+                if not self.find_one_from_collection(self.cities, {'city_title': city_title}, {}):
+                    self.insert_one_to_collection({'id': city_id, 'city_title': city_title,
+                                                   'country_id': country_id['id'],
+                                                   'population': population}, {})
                 else:
                     continue
         except Exception:

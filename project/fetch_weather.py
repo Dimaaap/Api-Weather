@@ -7,17 +7,17 @@ import datetime
 from progressbar import ProgressBar
 
 from mixins import ConnectToMongoMixin
+from db_wrapper import DbWrapper
 
 
-class FetchWeather(ConnectToMongoMixin):
+class FetchWeather(ConnectToMongoMixin, DbWrapper):
     API_TOKEN = getenv('API_TOKEN')
+    MAX_DOCUMENTS_COUNT = 400
 
     def __init__(self):
         super().__init__()
         self.cities = self.database['cities']
         self.weather = self.database['weather']
-        cursor = self.weather.find()
-        self.fetch_weather_to_cities()
 
     @staticmethod
     def form_request_url(city: str, token: str = API_TOKEN):
@@ -41,24 +41,15 @@ class FetchWeather(ConnectToMongoMixin):
                 count += 1
                 bar.update(count)
 
-        self.parse_weather_data(list_weather)
+        self.__parse_weather_data(list_weather)
 
-    def parse_weather_data(self, weather_data: list):
+    def __parse_weather_data(self, weather_data: list):
         weather_list = []
         weather_data = self.__change_temperature_dict_to_celsius(weather_data)
         for i in range(len(weather_data)):
             weather_list.append({'city_id': i + 1, 'weather_data': weather_data[i],
                                  'time_insert': datetime.datetime.now()})
-        self.save_to_db_weather(weather_list)
-
-    def save_to_db_weather(self, weather_list: list[dict]):
-        try:
-            self.weather.insert_many(weather_list)
-        except Exception as e:
-            print(e)
-            raise ConnectionError('Failed inserted to db')
-        else:
-            print('Data inserted successfully')
+        self.insert_many_to_collection(weather_list, self.weather)
 
     def update_weather_data(self):
         pass
@@ -78,5 +69,18 @@ class FetchWeather(ConnectToMongoMixin):
                                 list_temperature))
         return convert_list
 
+    def clear_collection(self):
+        if self.weather.count_documents({}) > 400:
+            count_documents = self.weather.count_documents({})
+            id_list = list(self.weather.find({}, {'_id': 1}).limit(count_documents -
+                                                                   self.MAX_DOCUMENTS_COUNT))
+            id_list = [i['_id'] for i in id_list]
+            self.weather.delete_many({'_id': {'$in': id_list}})
+
+    def start(self):
+        self.fetch_weather_to_cities()
+        self.clear_collection()
+
 
 a = FetchWeather()
+a.start()

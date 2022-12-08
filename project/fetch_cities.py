@@ -37,7 +37,7 @@ class CitiesFetcher:
             request = requests.get(self.URL_TO_CITIES_TABLE)
         except Exception:
             raise ConnectionError("Помилка запиту. Ймовірно,у вас проблеми із інтернетом,"
-                                  "перевірте з'єднання та спробуйте ще раз ")
+                                  "перевірте з'єднання та спробуйте ще раз")
         request_text = request.text
         soup = BeautifulSoup(request_text, 'lxml')
         table = soup.find('table', id='world_cities')
