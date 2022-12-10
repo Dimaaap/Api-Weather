@@ -69,17 +69,9 @@ class FetchWeather(ConnectToMongoMixin, DbWrapper):
                                 list_temperature))
         return convert_list
 
-    def clear_collection(self):
-        if self.weather.count_documents({}) > 400:
-            count_documents = self.weather.count_documents({})
-            id_list = list(self.weather.find({}, {'_id': 1}).limit(count_documents -
-                                                                   self.MAX_DOCUMENTS_COUNT))
-            id_list = [i['_id'] for i in id_list]
-            self.weather.delete_many({'_id': {'$in': id_list}})
-
     def start(self):
         self.fetch_weather_to_cities()
-        self.clear_collection()
+        self.clear_collection(self.weather, self.MAX_DOCUMENTS_COUNT)
 
 
 a = FetchWeather()

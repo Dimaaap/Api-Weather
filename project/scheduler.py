@@ -1,13 +1,19 @@
 import schedule
 
+
 from fetch_weather import FetchWeather
 
 
-class Scheduler(FetchWeather):
+class ScriptRunner:
 
-    def scheduler_doing(self):
-        schedule.every().minute.do(self.fetch_weather_to_cities)
+    @staticmethod
+    def start():
+        FetchWeather().start()
 
 
-a = Scheduler()
-a.scheduler_doing()
+a = ScriptRunner
+schedule.every().minute.do(a.start)
+while True:
+    schedule.run_pending()
+
+

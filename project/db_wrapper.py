@@ -30,7 +30,8 @@ class DbWrapper:
             return result
 
     @staticmethod
-    def find_one_from_collection(collection: callable, filter_fields: dict, including_fields: dict):
+    def find_one_from_collection(collection: callable, filter_fields: dict,
+                                 including_fields: dict):
         try:
             result = collection.find_one(filter_fields, including_fields)
         except Exception as e:
@@ -57,3 +58,12 @@ class DbWrapper:
             raise ConnectionError('Connection has been lost')
         else:
             return count
+
+    def clear_collection(self, collection, count_documents):
+        if self.count_number_documents_in_collection(collection, {}) > count_documents:
+            count_documents = self.count_number_documents_in_collection(collection, {})
+            id_list = list(self.find_all_data_from_collection(collection, {},
+                                                              {'_id': 1}).
+                           limit(count_documents - count_documents))
+            id_list = [i['_id'] for i in id_list]
+            collection.delete_many({'_id': {'$in': id_list}})
