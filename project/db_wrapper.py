@@ -6,7 +6,7 @@ class DbWrapper:
             collection.insert_one(data)
         except Exception as e:
             print(e)
-            raise ConnectionError('Connection hes been lost')
+            raise ConnectionError('Inserted errors')
         else:
             print('Data was inserted successfully')
 
