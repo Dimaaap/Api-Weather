@@ -5,14 +5,13 @@ import requests
 
 
 class CitiesFetcher:
-
     URL_TO_CITIES_TABLE = 'https://www.macrotrends.net/cities/largest-cities-by-population'
 
     def __init__(self):
         if Path('cities.html').exists():
             self._parse_file()
         else:
-            self.__create_file('cities.html')
+            self.__create_file('cities.html', self.URL_TO_CITIES_TABLE)
 
     @staticmethod
     def _parse_file():
@@ -32,9 +31,9 @@ class CitiesFetcher:
                 break
         return dict_cities
 
-    def __create_file(self, filename: str):
+    def __create_file(self, filename: str, request_url: str = URL_TO_CITIES_TABLE):
         try:
-            request = requests.get(self.URL_TO_CITIES_TABLE)
+            request = requests.get(request_url)
         except Exception:
             raise ConnectionError("Помилка запиту. Ймовірно,у вас проблеми із інтернетом,"
                                   "перевірте з'єднання та спробуйте ще раз")

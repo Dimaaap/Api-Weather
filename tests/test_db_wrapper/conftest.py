@@ -29,3 +29,23 @@ def insert_data_to_database():
         {'cool_test': {'wow': 'super'}}
     ], test_collection)
     return test_collection
+
+
+@pytest.fixture
+def inserted_collection():
+    connection = ConnectToMongoMixin()
+    test_database = connection.client['test_db']
+    test_collection = test_database['collection_to_test_deleting']
+    inserted_list = [
+        {'city': 'Kyiv'},
+        {'city': 'Lutsk'},
+        {'city': 'Lviv'},
+        {'city': 'Kharkiv'},
+        {'city': 'Rivne'},
+        {'city': 'Ternopil'}
+    ]
+    test_collection.insert_many(inserted_list)
+    yield test_collection
+    test_collection.delete_many({})
+
+
